@@ -18,10 +18,10 @@ class TodoList extends StatelessWidget {
         itemBuilder: (context, index) {
           final todo = viewModel.todoItems[index];
           return TodoWidget(
+            key: ValueKey(todo.id),
             title: todo.title,
             description: todo.description,
             isCompleted: todo.isCompleted,
-            showDescription: false,
           );
         },
       ),

@@ -56,10 +56,15 @@ abstract final class AppTheme {
 
   static const _inputDecorationTheme = InputDecorationTheme(
     hintStyle: TextStyle(
-      color: AppColors.slateBlue,
-      fontSize: 18.0,
-      fontWeight: FontWeight.w400,
+      color: AppColors.mutedAzure,
+      fontSize: 16.0,
+      fontWeight: FontWeight.w500,
     ),
+    errorStyle: TextStyle(
+      color: AppColors.fireRed,
+    ),
+    border: InputBorder.none,
+    filled: false,
   );
 
   static const _checkBoxTheme = CheckboxThemeData(

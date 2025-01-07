@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/config/assets.dart';
 import 'package:task_manager/ui/core/ui/widgets/custom_text_buttom.dart';
 
 import '../../core/themes/colors.dart';
@@ -18,7 +19,7 @@ class TodoNoTasks extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            "assets/images/not_found.png",
+            Assets.notFoundTasks,
             height: 80,
             width: 80,
           ),

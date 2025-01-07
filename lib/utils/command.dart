@@ -18,7 +18,12 @@ abstract class Command<T> extends ChangeNotifier {
   bool get error => _result is Error;
   bool get completed => _result is Ok;
 
-  Result? get result => _result;
+  T get value {
+    if (_result is Ok) return (_result as Ok<T>).value;
+    throw StateError('result is not avaliable (completed) is not true');
+  }
+
+  Result<T>? get result => _result;
 
   void clearResult() {
     _result = null;

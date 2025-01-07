@@ -1,43 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:task_manager/ui/todo/view_models/todo_screen_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
+import 'package:task_manager/config/assets.dart';
+import 'package:task_manager/ui/core/ui/widgets/custom_modal_bottom_sheet.dart';
 
+import '../../../domain/usecases/create_todo_usecase.dart';
 import '../../core/ui/widgets/custom_app_bar.dart';
 import '../../core/ui/widgets/navigation_bottom_icon.dart';
 import '../../todo/widgets/todo_screen.dart';
+import '../../todo_form/view_models/todo_form_view_model.dart';
+import '../../todo_form/widgets/todo_form_screen.dart';
 import '../view_models/home_viewmodel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
-    required this.viewModel,
-  });
+    required HomeViewModel homeViewModel,
+  }) : _homeViewModel = homeViewModel;
 
-  final HomeViewModel viewModel;
+  final HomeViewModel _homeViewModel;
 
-  @override
-  State<HomeScreen> createState() => _ActivitiesScreenState();
-}
-
-class _ActivitiesScreenState extends State<HomeScreen> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  final List<Widget> screens = [
-    TodoScreen(viewModel: TodoScreenViewModel()),
-    const Center(child: Text('Notifications Screen')),
-    const Center(child: Text('Profile Screen')),
-    const Center(child: Text('Settings Screen')),
+  static final List<SingleChildWidget> providers = [
+    ChangeNotifierProvider(
+      lazy: true,
+      create: (context) => HomeViewModel(),
+    ),
+    ChangeNotifierProvider(
+      lazy: true,
+      create: (context) => TodoFormViewModel(
+        createTodoUseCase: context.read<CreateTodoUseCase>(),
+      ),
+    ),
+    ChangeNotifierProvider(
+      lazy: true,
+      create: (context) => TodoFormViewModel(
+        createTodoUseCase: context.read<CreateTodoUseCase>(),
+      ),
+    ),
   ];
 
-  int get currentIndexValue => widget.viewModel.currentIndex.value;
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int get currentIndexValue => widget._homeViewModel.currentIndex.value;
+
+  final pageController = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -46,26 +56,28 @@ class _ActivitiesScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: const CustomAppBar(
           userName: "Jhon",
-          userPhoto: "assets/images/userPhoto.jpg",
+          userPhoto: Assets.userPhoto,
         ),
-        body: ListenableBuilder(
-          listenable: widget.viewModel.currentIndex,
-          builder: (context, _) {
-            return IndexedStack(
-              index: currentIndexValue,
-              children: screens,
-            );
+        body: PageView(
+          controller: pageController,
+          onPageChanged: (index) {
+            widget._homeViewModel.setIndex(index);
           },
+          physics: const NeverScrollableScrollPhysics(),
+          children: const [
+            TodoScreen(),
+            Center(child: Text('Notifications Screen')),
+            Center(child: Text('Profile Screen')),
+            Center(child: Text('Settings Screen')),
+          ],
         ),
-        bottomNavigationBar: ListenableBuilder(
-            listenable: widget.viewModel.currentIndex,
-            builder: (context, _) {
+        bottomNavigationBar: ValueListenableBuilder(
+            valueListenable: widget._homeViewModel.currentIndex,
+            builder: (context, _, __) {
               return SizedBox(
                 height: 80,
                 child: BottomNavigationBar(
-                  onTap: (index) {
-                    widget.viewModel.setIndex(index);
-                  },
+                  onTap: _onTapNavigationBarItem,
                   currentIndex: currentIndexValue,
                   items: _bottomNavigationItems,
                 ),
@@ -73,6 +85,22 @@ class _ActivitiesScreenState extends State<HomeScreen> {
             }),
       ),
     );
+  }
+
+  void _onTapNavigationBarItem(int index) {
+    const createBottomPage = 1;
+    if (index == createBottomPage) {
+      showCustomModalBottomSheet(
+        context,
+        builder: (modalContext) => TodoFormScreen(
+          createTodoViewModel: context.read<TodoFormViewModel>(),
+        ),
+      );
+
+      return;
+    }
+    widget._homeViewModel.setIndex(index);
+    pageController.jumpToPage(index);
   }
 
   final _bottomNavigationItems = [

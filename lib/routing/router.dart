@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:task_manager/ui/home/view_models/home_viewmodel.dart';
 
-import '../ui/home/view_models/home_viewmodel.dart';
 import '../ui/home/widgets/home_screen.dart';
 import 'routes.dart';
 
@@ -11,8 +12,11 @@ GoRouter router() => GoRouter(
         GoRoute(
           path: Routes.home,
           builder: (context, state) {
-            return HomeScreen(
-              viewModel: HomeViewModel(),
+            return MultiProvider(
+              providers: HomeScreen.providers,
+              builder: (context, _) => HomeScreen(
+                homeViewModel: context.read<HomeViewModel>(),
+              ),
             );
           },
         ),

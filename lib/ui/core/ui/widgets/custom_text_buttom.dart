@@ -2,28 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/ui/core/themes/colors.dart';
 
 class CustomTextButton extends StatelessWidget {
-  const CustomTextButton({
-    super.key,
-    required this.onPressed,
-    this.icon,
-    required this.label,
-  });
+  const CustomTextButton(
+      {super.key,
+      required this.onPressed,
+      this.icon,
+      required this.label,
+      this.isLoading = false,
+      this.isDisable = false,
+      this.backgroundColor});
   final VoidCallback onPressed;
   final Widget? icon;
   final Widget label;
+  final bool isLoading;
+  final bool isDisable;
+  final Color? backgroundColor;
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.blue.withOpacity(0.10),
+        backgroundColor: backgroundColor ?? AppColors.blue.withOpacity(0.10),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      onPressed: onPressed,
+      onPressed: !isDisable || isLoading ? onPressed : null,
       icon: icon,
-      label: label,
+      label: isLoading ? const CircularProgressIndicator() : label,
     );
   }
 }

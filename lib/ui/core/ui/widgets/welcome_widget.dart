@@ -35,11 +35,20 @@ class WelcomeWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
-          "You've got $taskCount tasks to do",
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: 16,
-              ),
+        Visibility(
+          visible: taskCount > 0,
+          replacement: Text(
+            "Create tasks to achieve more.",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 16,
+                ),
+          ),
+          child: Text(
+            "You've got $taskCount tasks to do.",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 16,
+                ),
+          ),
         )
       ],
     );

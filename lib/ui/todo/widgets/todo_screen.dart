@@ -6,13 +6,21 @@ import '../../core/ui/widgets/welcome_widget.dart';
 import '../view_models/todo_screen_view_model.dart';
 import 'todo_list.dart';
 
-class TodoScreen extends StatelessWidget {
-  const TodoScreen({
-    super.key,
-    required this.viewModel,
-  });
+class TodoScreen extends StatefulWidget {
+  const TodoScreen({super.key});
 
-  final TodoScreenViewModel viewModel;
+  @override
+  State<TodoScreen> createState() => _TodoScreenState();
+}
+
+class _TodoScreenState extends State<TodoScreen> {
+  late TodoScreenViewModel _viewModel;
+  @override
+  void initState() {
+    super.initState();
+    _viewModel = TodoScreenViewModel.instance;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -23,22 +31,22 @@ class TodoScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const WelcomeWidget(
-            taskCount: 7,
+          WelcomeWidget(
+            taskCount: _viewModel.todoItems.length,
             userName: 'Jhon',
           ),
           const SizedBox(height: 32),
           ListenableBuilder(
-            listenable: viewModel,
+            listenable: _viewModel,
             builder: (context, _) {
-              if (viewModel.todoItems.isEmpty) {
+              if (_viewModel.todoItems.isEmpty) {
                 return const Expanded(
                   child: TodoNoTasks(),
                 );
               }
               return Expanded(
                 child: TodoList(
-                  viewModel: viewModel,
+                  viewModel: _viewModel,
                 ),
               );
             },

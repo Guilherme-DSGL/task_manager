@@ -20,6 +20,7 @@ TodoItem _$TodoItemFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$TodoItem {
+  int? get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   bool get isCompleted => throw _privateConstructorUsedError;
@@ -39,7 +40,7 @@ abstract class $TodoItemCopyWith<$Res> {
   factory $TodoItemCopyWith(TodoItem value, $Res Function(TodoItem) then) =
       _$TodoItemCopyWithImpl<$Res, TodoItem>;
   @useResult
-  $Res call({String title, String description, bool isCompleted});
+  $Res call({int? id, String title, String description, bool isCompleted});
 }
 
 /// @nodoc
@@ -57,11 +58,16 @@ class _$TodoItemCopyWithImpl<$Res, $Val extends TodoItem>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? title = null,
     Object? description = null,
     Object? isCompleted = null,
   }) {
     return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -86,7 +92,7 @@ abstract class _$$TodoItemImplCopyWith<$Res>
       __$$TodoItemImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String title, String description, bool isCompleted});
+  $Res call({int? id, String title, String description, bool isCompleted});
 }
 
 /// @nodoc
@@ -102,11 +108,16 @@ class __$$TodoItemImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = freezed,
     Object? title = null,
     Object? description = null,
     Object? isCompleted = null,
   }) {
     return _then(_$TodoItemImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -127,13 +138,16 @@ class __$$TodoItemImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$TodoItemImpl implements _TodoItem {
   const _$TodoItemImpl(
-      {required this.title,
+      {this.id,
+      required this.title,
       required this.description,
       required this.isCompleted});
 
   factory _$TodoItemImpl.fromJson(Map<String, dynamic> json) =>
       _$$TodoItemImplFromJson(json);
 
+  @override
+  final int? id;
   @override
   final String title;
   @override
@@ -143,7 +157,7 @@ class _$TodoItemImpl implements _TodoItem {
 
   @override
   String toString() {
-    return 'TodoItem(title: $title, description: $description, isCompleted: $isCompleted)';
+    return 'TodoItem(id: $id, title: $title, description: $description, isCompleted: $isCompleted)';
   }
 
   @override
@@ -151,6 +165,7 @@ class _$TodoItemImpl implements _TodoItem {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$TodoItemImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -160,7 +175,8 @@ class _$TodoItemImpl implements _TodoItem {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, title, description, isCompleted);
+  int get hashCode =>
+      Object.hash(runtimeType, id, title, description, isCompleted);
 
   /// Create a copy of TodoItem
   /// with the given fields replaced by the non-null parameter values.
@@ -180,13 +196,16 @@ class _$TodoItemImpl implements _TodoItem {
 
 abstract class _TodoItem implements TodoItem {
   const factory _TodoItem(
-      {required final String title,
+      {final int? id,
+      required final String title,
       required final String description,
       required final bool isCompleted}) = _$TodoItemImpl;
 
   factory _TodoItem.fromJson(Map<String, dynamic> json) =
       _$TodoItemImpl.fromJson;
 
+  @override
+  int? get id;
   @override
   String get title;
   @override

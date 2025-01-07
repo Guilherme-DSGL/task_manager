@@ -1,16 +1,20 @@
-// Copyright 2024 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
+import 'package:asuka/asuka.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
+import 'package:task_manager/config/dependencies.dart';
 import 'package:task_manager/ui/core/themes/theme.dart';
 
 import 'routing/router.dart';
 
 void main() {
+  Logger.root.level = Level.ALL;
   runApp(
-    const MainApp(),
+    MultiProvider(
+      providers: providers,
+      child: const MainApp(),
+    ),
   );
 }
 
@@ -20,6 +24,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      builder: Asuka.builder,
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
