@@ -13,6 +13,7 @@ abstract class TodoRepository {
     bool? isCompleted,
   });
   Future<Result<void>> delete(int id);
+  Future<Result<void>> deleteAll(List<int> ids);
   Future<Result<List<TodoItem>>> getTodos({
     bool? isCompleted,
     String? search,
@@ -111,6 +112,21 @@ class TodoRepositoryImpl implements TodoRepository {
           _todos.where((todoItem) => todoItem.isCompleted == isCompleted),
         ),
       );
+    } catch (e) {
+      return Result.error(Exception(e));
+    }
+  }
+
+  @override
+  Future<Result<void>> deleteAll(List<int> ids) async {
+    try {
+      await Future.delayed(
+        const Duration(seconds: 1),
+      );
+
+      _todos.removeWhere((todo) => ids.contains(todo.id));
+
+      return const Result.ok(null);
     } catch (e) {
       return Result.error(Exception(e));
     }

@@ -5,10 +5,10 @@ import 'package:task_manager/ui/core/ui/widgets/custom_text_buttom.dart';
 import '../../core/themes/colors.dart';
 
 class TodoNoTasks extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onCreateTaksPressed;
   const TodoNoTasks({
     super.key,
-    required this.onPressed,
+    this.onCreateTaksPressed,
   });
 
   @override
@@ -29,22 +29,23 @@ class TodoNoTasks extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            height: 50,
-            child: CustomTextButton(
-              onPressed: onPressed,
-              icon: const Icon(
-                Icons.add,
-                color: AppColors.blue,
-              ),
-              label: Text(
-                "Create task",
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.blue,
-                    ),
+          if (onCreateTaksPressed != null)
+            SizedBox(
+              height: 50,
+              child: CustomTextButton(
+                onPressed: onCreateTaksPressed!,
+                icon: const Icon(
+                  Icons.add,
+                  color: AppColors.blue,
+                ),
+                label: Text(
+                  "Create task",
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.blue,
+                      ),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

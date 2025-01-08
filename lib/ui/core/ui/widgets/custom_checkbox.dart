@@ -46,7 +46,7 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
           const Positioned(
             width: 8,
             height: 8,
-            child: CircularProgressIndicator(
+            child: CircularProgressIndicator.adaptive(
               strokeWidth: 2,
             ),
           ),

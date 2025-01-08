@@ -4,34 +4,29 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:task_manager/data/repositories/todo_repository.dart';
 import 'package:task_manager/utils/command.dart';
-import 'package:task_manager/utils/event_bus/events/todo/check_todo_event.dart';
 import 'package:task_manager/utils/result.dart';
 
 import '../../../domain/entities/todo_item.dart';
-import '../../../domain/usecases/check_todo_usecase.dart';
 import '../../../utils/event_bus/event_bus.dart';
 import '../../../utils/event_bus/events/todo/created_todo_event.dart';
 
-class TodoScreenViewModel extends ChangeNotifier {
-  TodoScreenViewModel({
+class TodoSearchViewModel extends ChangeNotifier {
+  TodoSearchViewModel({
     required TodoRepository todoRepository,
-    required CheckTodoUseCase checkUsecase,
-  })  : _todoRepository = todoRepository,
-        _checkUsecase = checkUsecase {
+  }) : _todoRepository = todoRepository {
     load = Command0(_load);
-    check = Command1(_check);
-    _listener = EventBus.instance
+    _createTodoListener = EventBus.instance
         .on<CreatedTodoEvent>()
         .listen((event) => _addTodo(event.value));
   }
 
   final TodoRepository _todoRepository;
-  final CheckTodoUseCase _checkUsecase;
 
   late Command0<List<TodoItem>> load;
   late Command1<TodoItem, ({int index, int id, bool value})> check;
 
-  late final StreamSubscription _listener;
+  late final StreamSubscription _createTodoListener;
+  late final StreamSubscription _deleteTodoListener;
   final List<TodoItem> _todoItems = [];
   List<TodoItem> get todoItems => _todoItems;
   TodoItem getTodo(int index) => todoItems[index];
@@ -58,31 +53,6 @@ class TodoScreenViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<TodoItem>> _check(
-      ({
-        int index,
-        int id,
-        bool value,
-      }) params) async {
-    try {
-      final result = await _checkUsecase.call(
-          todoId: params.id, isCompleted: params.value);
-      switch (result) {
-        case Ok<TodoItem>():
-          _log.fine("Checked todo");
-          _todoItems.removeAt(params.index);
-          EventBus.instance.emit(CheckTodoEvent(
-            value: result.value,
-          ));
-          return result;
-        case Error<TodoItem>():
-          return Result.error(result.error);
-      }
-    } finally {
-      notifyListeners();
-    }
-  }
-
   void _addTodo(TodoItem todoItem) {
     _todoItems.add(todoItem);
     _log.fine("add todoitem to TodoScreenViewModel._todoItems");
@@ -92,6 +62,6 @@ class TodoScreenViewModel extends ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
-    _listener.cancel();
+    _createTodoListener.cancel();
   }
 }

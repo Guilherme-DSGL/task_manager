@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/ui/core/themes/colors.dart';
 
 import 'custom_checkbox.dart';
+import 'custom_icon_button.dart';
 
 class TodoWidget extends StatefulWidget {
   const TodoWidget({
@@ -10,14 +11,16 @@ class TodoWidget extends StatefulWidget {
     required this.description,
     required this.isCompleted,
     this.isDeleteButtonVisible = false,
-    this.onChanged,
+    this.onCheckChanged,
+    this.onDeletePressed,
   });
 
   final String title;
   final String description;
   final bool isCompleted;
   final bool isDeleteButtonVisible;
-  final Future<void> Function(bool?)? onChanged;
+  final Future<void> Function(bool?)? onCheckChanged;
+  final Future<void> Function()? onDeletePressed;
 
   @override
   _TodoWidgetState createState() => _TodoWidgetState();
@@ -25,7 +28,6 @@ class TodoWidget extends StatefulWidget {
 
 class _TodoWidgetState extends State<TodoWidget> {
   bool isDescriptionVisible = false;
-  bool isLoading = false;
 
   void _toggleDescription() {
     setState(() {
@@ -40,11 +42,14 @@ class _TodoWidgetState extends State<TodoWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomCheckbox(
-            checkColor:
-                widget.isDeleteButtonVisible ? AppColors.mutedAzure : null,
-            value: widget.isCompleted,
-            onChanged: widget.onChanged?.call,
+          Visibility(
+            visible: !widget.isDeleteButtonVisible,
+            child: CustomCheckbox(
+              checkColor:
+                  widget.isDeleteButtonVisible ? AppColors.mutedAzure : null,
+              value: widget.isCompleted,
+              onChanged: widget.onCheckChanged?.call,
+            ),
           ),
           Expanded(
             child: Column(
@@ -86,13 +91,10 @@ class _TodoWidgetState extends State<TodoWidget> {
                 size: 32,
               ),
             ),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.delete,
-                color: AppColors.fireRed,
-                size: 24,
-              ),
+            child: LoadingIconButton(
+              onPressed: widget.onDeletePressed,
+              color: AppColors.fireRed,
+              icon: Icons.delete,
             ),
           ),
         ],

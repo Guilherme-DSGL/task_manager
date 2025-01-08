@@ -14,13 +14,14 @@ class TodoFormViewModel extends ChangeNotifier {
     handleSubmit = Command1<TodoItem, int?>(_handleSubmit);
   }
 
-  void init() {
+  void initControllers() {
     titleController.addListener(_onInputChanged);
     descriptionController.addListener(_onInputChanged);
   }
 
-  void clear() {
+  void clearControllers() {
     handleSubmit.clearResult();
+    clearTextControllers();
     titleController.removeListener(_onInputChanged);
     descriptionController.removeListener(_onInputChanged);
   }
@@ -63,25 +64,27 @@ class TodoFormViewModel extends ChangeNotifier {
     required String title,
     required String description,
   }) async {
-    final result = await _createTodoUseCase(
-      title: title,
-      description: description,
-    );
+    try {
+      final result = await _createTodoUseCase(
+        title: title,
+        description: description,
+      );
 
-    switch (result) {
-      case Ok<TodoItem>():
-        _log.fine('Created Todo');
-        EventBus.instance.emit(CreatedTodoEvent(value: result.value));
-        notifyListeners();
-        return Result.ok(result.value);
-      case Error<TodoItem>():
-        _log.warning('Failed to create Todo');
-        notifyListeners();
-        return Result.error(result.error);
+      switch (result) {
+        case Ok<TodoItem>():
+          _log.fine('Created Todo');
+          EventBus.instance.emit(CreatedTodoEvent(value: result.value));
+          return Result.ok(result.value);
+        case Error<TodoItem>():
+          _log.warning('Failed to create Todo');
+          return Result.error(result.error);
+      }
+    } finally {
+      notifyListeners();
     }
   }
 
-  void clearControllers() {
+  void clearTextControllers() {
     titleController.clear();
     descriptionController.clear();
   }

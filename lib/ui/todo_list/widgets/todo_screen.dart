@@ -59,7 +59,7 @@ class _TodoScreenState extends State<TodoScreen>
                 return const Expanded(
                   child: Align(
                     alignment: Alignment.center,
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator.adaptive(),
                   ),
                 );
               }
@@ -82,12 +82,12 @@ class _TodoScreenState extends State<TodoScreen>
                         builder: (context, _) {
                           if (widget._todoScreenViewModel.todoItems.isEmpty) {
                             return TodoNoTasks(
-                              onPressed: () => _showTodoForm(context),
+                              onCreateTaksPressed: () => _showTodoForm(context),
                             );
                           }
                           return TodoList(
                             todoItems: widget._todoScreenViewModel.todoItems,
-                            onChanged: (id, index, value) async {
+                            onCheckChanged: (id, index, value) async {
                               if (value == null) return;
                               await widget._todoScreenViewModel.check.execute((
                                 id: id!,

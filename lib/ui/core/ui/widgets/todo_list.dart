@@ -7,14 +7,16 @@ class TodoList extends StatelessWidget {
   const TodoList({
     super.key,
     required this.todoItems,
-    this.onChanged,
+    this.onCheckChanged,
+    this.onDeletePressed,
   });
 
   final Future<void> Function(
     int? id,
     int index,
     bool? value,
-  )? onChanged;
+  )? onCheckChanged;
+  final Future<void> Function(int id)? onDeletePressed;
   final List<TodoItem> todoItems;
 
   @override
@@ -28,8 +30,12 @@ class TodoList extends StatelessWidget {
           title: todo.title,
           description: todo.description,
           isCompleted: todo.isCompleted,
-          onChanged: (value) async {
-            await onChanged?.call(
+          isDeleteButtonVisible: todo.isCompleted,
+          onDeletePressed: () async {
+            await onDeletePressed?.call(todo.id!);
+          },
+          onCheckChanged: (value) async {
+            await onCheckChanged?.call(
               todo.id,
               index,
               value,

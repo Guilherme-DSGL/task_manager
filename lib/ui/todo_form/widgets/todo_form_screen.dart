@@ -23,13 +23,15 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
   @override
   void initState() {
     super.initState();
-    widget._createTodoViewModel.init();
+    widget._createTodoViewModel.initControllers();
+    widget._createTodoViewModel.handleSubmit.addListener(_listener);
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget._createTodoViewModel.clear();
+    widget._createTodoViewModel.clearControllers();
+    widget._createTodoViewModel.handleSubmit.removeListener(_listener);
   }
 
   @override
@@ -98,17 +100,6 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
                         widget._createTodoViewModel.handleSubmit,
                       ]),
                       builder: (context, _) {
-                        if (widget._createTodoViewModel.handleSubmit.error) {
-                          widget._createTodoViewModel.handleSubmit
-                              .clearResult();
-                          AsukaSnackbar.warning(
-                                  "An error occurred creating the to do")
-                              .show();
-                        }
-                        if (widget
-                            ._createTodoViewModel.handleSubmit.completed) {
-                          context.pop();
-                        }
                         return CustomTextButton(
                           isDisable: !widget._createTodoViewModel.isValid.value,
                           isLoading:
@@ -129,5 +120,16 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
             )),
       ),
     );
+  }
+
+  void _listener() {
+    if (widget._createTodoViewModel.handleSubmit.error) {
+      widget._createTodoViewModel.handleSubmit.clearResult();
+      AsukaSnackbar.warning("An error occurred creating the to do").show();
+    }
+    if (widget._createTodoViewModel.handleSubmit.completed) {
+      widget._createTodoViewModel.handleSubmit.clearResult();
+      context.pop();
+    }
   }
 }

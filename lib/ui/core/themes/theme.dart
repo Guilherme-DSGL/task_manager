@@ -79,23 +79,33 @@ abstract final class AppTheme {
     ),
   );
 
+  static const _snackBarTheme = SnackBarThemeData(
+    insetPadding: EdgeInsets.only(
+      bottom: 80,
+      left: 16,
+      right: 16,
+    ),
+  );
+  static const _bottomNavigationBarTheme = BottomNavigationBarThemeData(
+    unselectedItemColor: AppColors.mutedAzure,
+    selectedItemColor: AppColors.blue,
+    unselectedLabelStyle: TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+    ),
+    showUnselectedLabels: true,
+    type: BottomNavigationBarType.fixed,
+    landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
+  );
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: AppColors.lightColorScheme,
     textTheme: _textTheme,
     inputDecorationTheme: _inputDecorationTheme,
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      unselectedItemColor: AppColors.mutedAzure,
-      selectedItemColor: AppColors.blue,
-      unselectedLabelStyle: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-      showUnselectedLabels: true,
-      type: BottomNavigationBarType.fixed,
-      landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
-    ),
+    bottomNavigationBarTheme: _bottomNavigationBarTheme,
     checkboxTheme: _checkBoxTheme,
+    snackBarTheme: _snackBarTheme,
   );
 }

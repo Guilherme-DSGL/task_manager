@@ -8,8 +8,10 @@ import 'package:task_manager/domain/usecases/check_todo_usecase.dart';
 import 'package:task_manager/ui/core/ui/widgets/custom_modal_bottom_sheet.dart';
 
 import '../../../domain/usecases/create_todo_usecase.dart';
+import '../../../domain/usecases/delete_todo_usecase.dart';
 import '../../core/ui/widgets/custom_app_bar.dart';
 import '../../core/ui/widgets/navigation_bottom_icon.dart';
+import '../../todo_done_list/view_models/todo_done_list_view_model.dart';
 import '../../todo_done_list/widgets/todo_done_list_screen.dart';
 import '../../todo_form/view_models/todo_form_view_model.dart';
 import '../../todo_form/widgets/todo_form_screen.dart';
@@ -49,6 +51,13 @@ class HomeScreen extends StatefulWidget {
         createTodoUseCase: context.read<CreateTodoUseCase>(),
       ),
     ),
+    ChangeNotifierProvider(
+      lazy: true,
+      create: (context) => TodoDoneListViewModel(
+        todoRepository: context.read<TodoRepository>(),
+        deleteTodoUseCase: context.read<DeleteTodoUseCase>(),
+      ),
+    ),
   ];
 
   @override
@@ -66,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox.shrink(),
         const Center(child: Text('Profile Screen')),
-        const TodoDoneListScreen(),
+        TodoDoneListScreen(
+          todoDoneListViewModel: context.read<TodoDoneListViewModel>(),
+        ),
       ];
 
   @override
