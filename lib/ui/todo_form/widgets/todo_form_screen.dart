@@ -21,6 +21,18 @@ class TodoFormScreen extends StatefulWidget {
 
 class _TodoFormScreenState extends State<TodoFormScreen> {
   @override
+  void initState() {
+    super.initState();
+    widget._createTodoViewModel.init();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    widget._createTodoViewModel.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 300,
@@ -30,91 +42,91 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
           vertical: AppSizes.paddingVertical,
         ),
         child: Form(
-          key: widget._createTodoViewModel.formKey,
-          child: StreamBuilder<Object>(
-              stream: null,
-              builder: (context, snapshot) {
-                return Column(
+            key: widget._createTodoViewModel.formKey,
+            child: Column(
+              children: [
+                ListenableBuilder(
+                  listenable: Listenable.merge([
+                    widget._createTodoViewModel.isValid,
+                    widget._createTodoViewModel.handleSubmit,
+                  ]),
+                  builder: (context, _) {
+                    return CustomInput(
+                      readOnly: widget._createTodoViewModel.isDisableFields,
+                      controller: widget._createTodoViewModel.titleController,
+                      validator: widget._createTodoViewModel.titleValidator,
+                      prefixIcon: Transform.scale(
+                        scale: 1.3,
+                        child: const Checkbox(
+                          value: false,
+                          onChanged: null,
+                        ),
+                      ),
+                      hintText: 'What\'s in your mind',
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                ListenableBuilder(
+                  listenable: Listenable.merge([
+                    widget._createTodoViewModel.isValid,
+                    widget._createTodoViewModel.handleSubmit,
+                  ]),
+                  builder: (context, _) {
+                    return CustomInput(
+                      readOnly: widget._createTodoViewModel.isDisableFields,
+                      controller:
+                          widget._createTodoViewModel.descriptionController,
+                      validator:
+                          widget._createTodoViewModel.descriptionValidator,
+                      prefixIcon: const Icon(
+                        Icons.edit,
+                        color: AppColors.mutedAzure,
+                      ),
+                      minLines: 1,
+                      maxLines: 4,
+                      hintText: 'Add a note',
+                    );
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ListenableBuilder(
-                      listenable: Listenable.merge([]),
-                      builder: (context, _) {
-                        return CustomInput(
-                          controller:
-                              widget._createTodoViewModel.titleController,
-                          validator: widget._createTodoViewModel.titleValidator,
-                          prefixIcon: Transform.scale(
-                            scale: 1.3,
-                            child: const Checkbox(
-                              value: false,
-                              onChanged: null,
-                            ),
-                          ),
-                          hintText: 'What\'s in your mind',
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    ListenableBuilder(
                       listenable: Listenable.merge([
+                        widget._createTodoViewModel.isValid,
                         widget._createTodoViewModel.handleSubmit,
                       ]),
                       builder: (context, _) {
-                        return CustomInput(
-                          controller:
-                              widget._createTodoViewModel.descriptionController,
-                          validator:
-                              widget._createTodoViewModel.descriptionValidator,
-                          prefixIcon: const Icon(
-                            Icons.edit,
-                            color: AppColors.mutedAzure,
-                          ),
-                          minLines: 1,
-                          maxLines: 4,
-                          hintText: 'Add a note',
+                        if (widget._createTodoViewModel.handleSubmit.error) {
+                          widget._createTodoViewModel.handleSubmit
+                              .clearResult();
+                          AsukaSnackbar.warning(
+                                  "An error occurred creating the to do")
+                              .show();
+                        }
+                        if (widget
+                            ._createTodoViewModel.handleSubmit.completed) {
+                          context.pop();
+                        }
+                        return CustomTextButton(
+                          isDisable: !widget._createTodoViewModel.isValid.value,
+                          isLoading:
+                              widget._createTodoViewModel.handleSubmit.running,
+                          onPressed: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            widget._createTodoViewModel.handleSubmit
+                                .execute(null);
+                          },
+                          backgroundColor: Colors.transparent,
+                          label: const Text("Create"),
                         );
                       },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        ListenableBuilder(
-                          listenable: Listenable.merge([
-                            widget._createTodoViewModel.isValid,
-                            widget._createTodoViewModel.handleSubmit,
-                          ]),
-                          builder: (context, _) {
-                            if (widget
-                                ._createTodoViewModel.handleSubmit.error) {
-                              AsukaSnackbar.warning(
-                                      "An error occurred creating the to do")
-                                  .show();
-                            }
-                            if (widget
-                                ._createTodoViewModel.handleSubmit.completed) {
-                              context.pop();
-                            }
-                            return CustomTextButton(
-                              isDisable:
-                                  !widget._createTodoViewModel.isValid.value,
-                              isLoading: widget
-                                  ._createTodoViewModel.handleSubmit.running,
-                              onPressed: () {
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                widget._createTodoViewModel.handleSubmit
-                                    .execute(null);
-                              },
-                              backgroundColor: Colors.transparent,
-                              label: const Text("Create"),
-                            );
-                          },
-                        ),
-                      ],
-                    )
                   ],
-                );
-              }),
-        ),
+                )
+              ],
+            )),
       ),
     );
   }

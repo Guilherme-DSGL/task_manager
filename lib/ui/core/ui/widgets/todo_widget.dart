@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/ui/core/themes/colors.dart';
 
+import 'custom_checkbox.dart';
+
 class TodoWidget extends StatefulWidget {
   const TodoWidget({
     super.key,
@@ -8,12 +10,14 @@ class TodoWidget extends StatefulWidget {
     required this.description,
     required this.isCompleted,
     this.isDeleteButtonVisible = false,
+    this.onChanged,
   });
 
   final String title;
   final String description;
   final bool isCompleted;
   final bool isDeleteButtonVisible;
+  final Future<void> Function(bool?)? onChanged;
 
   @override
   _TodoWidgetState createState() => _TodoWidgetState();
@@ -21,6 +25,7 @@ class TodoWidget extends StatefulWidget {
 
 class _TodoWidgetState extends State<TodoWidget> {
   bool isDescriptionVisible = false;
+  bool isLoading = false;
 
   void _toggleDescription() {
     setState(() {
@@ -35,14 +40,11 @@ class _TodoWidgetState extends State<TodoWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Transform.scale(
-            scale: 1.3,
-            child: Checkbox(
-              checkColor:
-                  widget.isDeleteButtonVisible ? AppColors.mutedAzure : null,
-              value: widget.isCompleted,
-              onChanged: (value) {},
-            ),
+          CustomCheckbox(
+            checkColor:
+                widget.isDeleteButtonVisible ? AppColors.mutedAzure : null,
+            value: widget.isCompleted,
+            onChanged: widget.onChanged?.call,
           ),
           Expanded(
             child: Column(

@@ -34,7 +34,7 @@ class EventBus {
     }
   }
 
-  void emit<T>(T event) {
+  void emit<T extends Event>(T event) {
     streamController.add(event);
   }
 

@@ -28,7 +28,15 @@ class CustomTextButton extends StatelessWidget {
       ),
       onPressed: !isDisable || isLoading ? onPressed : null,
       icon: icon,
-      label: isLoading ? const CircularProgressIndicator() : label,
+      label: isLoading
+          ? const SizedBox(
+              height: 16,
+              width: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+              ),
+            )
+          : label,
     );
   }
 }

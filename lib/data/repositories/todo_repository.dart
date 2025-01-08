@@ -5,7 +5,7 @@ import 'package:task_manager/domain/entities/todo_item.dart';
 import '../../../utils/result.dart';
 
 abstract class TodoRepository {
-  Future<Result<void>> create(TodoItem todoItem);
+  Future<Result<TodoItem>> create(TodoItem todoItem);
   Future<Result<TodoItem>> update({
     required int id,
     String? title,
@@ -13,23 +13,36 @@ abstract class TodoRepository {
     bool? isCompleted,
   });
   Future<Result<void>> delete(int id);
-  Future<Result<List<TodoItem>>> getTodos();
+  Future<Result<List<TodoItem>>> getTodos({
+    bool? isCompleted,
+    String? search,
+  });
 }
 
 class TodoRepositoryImpl implements TodoRepository {
   TodoRepositoryImpl();
 
-  final List<TodoItem> _todos = [];
+  final List<TodoItem> _todos = [
+    /* const TodoItem(
+      id: 1,
+      title: 'Task 1',
+      description: 'Description 1',
+      isCompleted: false,
+    ), */
+  ];
   int _sequentialId = 0;
 
   @override
-  Future<Result<void>> create(TodoItem todoItem) async {
+  Future<Result<TodoItem>> create(TodoItem todoItem) async {
     try {
+      await Future.delayed(
+        const Duration(seconds: 1),
+      );
       final newTodo = todoItem.copyWith(id: _sequentialId++);
 
       _todos.add(newTodo);
 
-      return const Result.ok(null);
+      return Result.ok(newTodo);
     } catch (e) {
       return Result.error(Exception(e));
     }
@@ -43,6 +56,9 @@ class TodoRepositoryImpl implements TodoRepository {
     bool? isCompleted,
   }) async {
     try {
+      await Future.delayed(
+        const Duration(seconds: 1),
+      );
       final index = _todos.indexWhere((todo) => todo.id == id);
       if (index == -1) {
         return Result.error(Exception('Todo not found'));
@@ -63,6 +79,9 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<Result<void>> delete(int id) async {
     try {
+      await Future.delayed(
+        const Duration(seconds: 1),
+      );
       final int index = _todos.indexWhere((todo) => todo.id == id);
       if (index == -1) {
         return Result.error(Exception('Todo not found'));
@@ -76,9 +95,22 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Result<List<TodoItem>>> getTodos() async {
+  Future<Result<List<TodoItem>>> getTodos({
+    bool? isCompleted,
+    String? search,
+  }) async {
     try {
-      return Result.ok(List.unmodifiable(_todos));
+      await Future.delayed(
+        const Duration(seconds: 5),
+      );
+      if (isCompleted == null) {
+        return Result.ok(List.unmodifiable(_todos));
+      }
+      return Result.ok(
+        List.unmodifiable(
+          _todos.where((todoItem) => todoItem.isCompleted == isCompleted),
+        ),
+      );
     } catch (e) {
       return Result.error(Exception(e));
     }

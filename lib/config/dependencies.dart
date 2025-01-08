@@ -7,25 +7,25 @@ import 'package:task_manager/domain/usecases/delete_todo_usecase.dart';
 
 List<SingleChildWidget> get providers {
   return [
-    Provider(
+    Provider<TodoRepository>(
       create: (context) => TodoRepositoryImpl(),
     ),
     Provider(
       lazy: true,
       create: (context) => CreateTodoUseCase(
-        todoRepository: context.read<TodoRepositoryImpl>(),
+        todoRepository: context.read<TodoRepository>(),
       ),
     ),
     Provider(
       lazy: true,
       create: (context) => CheckTodoUseCase(
-        todoRepository: context.read<TodoRepositoryImpl>(),
+        todoRepository: context.read<TodoRepository>(),
       ),
     ),
     Provider(
       lazy: true,
       create: (context) => DeleteTodoUseCase(
-        todoRepository: context.read<TodoRepositoryImpl>(),
+        todoRepository: context.read<TodoRepository>(),
       ),
     ),
   ];

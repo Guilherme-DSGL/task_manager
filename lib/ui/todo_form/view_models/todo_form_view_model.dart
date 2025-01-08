@@ -12,9 +12,19 @@ class TodoFormViewModel extends ChangeNotifier {
   TodoFormViewModel({required CreateTodoUseCase createTodoUseCase})
       : _createTodoUseCase = createTodoUseCase {
     handleSubmit = Command1<TodoItem, int?>(_handleSubmit);
+  }
+
+  void init() {
     titleController.addListener(_onInputChanged);
     descriptionController.addListener(_onInputChanged);
   }
+
+  void clear() {
+    handleSubmit.clearResult();
+    titleController.removeListener(_onInputChanged);
+    descriptionController.removeListener(_onInputChanged);
+  }
+
   final CreateTodoUseCase _createTodoUseCase;
 
   final TextEditingController titleController = TextEditingController();
@@ -25,12 +35,19 @@ class TodoFormViewModel extends ChangeNotifier {
 
   late final Command1<TodoItem, int?> handleSubmit;
 
+  final ValueNotifier<bool> isValid = ValueNotifier(false);
+
+  bool get isDisableFields => handleSubmit.running;
+
   Future<Result<TodoItem>> _handleSubmit(int? id) async {
     final title = titleController.text;
     final description = descriptionController.text;
 
     if (id == null) {
-      return await _createTodo(title: title, description: description);
+      return await _createTodo(
+        title: title,
+        description: description,
+      );
     } else {
       return const Result.ok(
         TodoItem(
@@ -55,9 +72,11 @@ class TodoFormViewModel extends ChangeNotifier {
       case Ok<TodoItem>():
         _log.fine('Created Todo');
         EventBus.instance.emit(CreatedTodoEvent(value: result.value));
+        notifyListeners();
         return Result.ok(result.value);
       case Error<TodoItem>():
         _log.warning('Failed to create Todo');
+        notifyListeners();
         return Result.error(result.error);
     }
   }
@@ -73,14 +92,15 @@ class TodoFormViewModel extends ChangeNotifier {
   }
 
   void _onInputChanged() {
-    _log.info("Validando o input");
-    _isValid.value = titleController.value.text.isNotEmpty &&
-        descriptionController.value.text.isNotEmpty;
+    final formValid = _validateInputs();
+
+    isValid.value = formValid;
   }
 
-  final ValueNotifier<bool> _isValid = ValueNotifier(false);
-
-  ValueNotifier<bool> get isValid => _isValid;
+  bool _validateInputs() {
+    return titleController.value.text.isNotEmpty &&
+        descriptionController.value.text.isNotEmpty;
+  }
 
   String? titleValidator(String? value) {
     if (value == null || value.isEmpty) {
@@ -94,13 +114,5 @@ class TodoFormViewModel extends ChangeNotifier {
       return 'Please enter a note';
     }
     return null;
-  }
-
-  @override
-  void dispose() {
-    _isValid.dispose();
-    titleController.removeListener(_onInputChanged);
-    descriptionController.removeListener(_onInputChanged);
-    super.dispose();
   }
 }

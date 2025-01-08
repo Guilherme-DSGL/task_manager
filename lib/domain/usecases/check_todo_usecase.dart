@@ -23,7 +23,8 @@ class CheckTodoUseCase {
 
     switch (updateResult) {
       case Ok<TodoItem>():
-        _log.fine('Todo ${isCompleted ? "checked" : "unchecked"} successfully');
+        _log.fine(
+            'Todo ${updateResult.value.isCompleted ? "checked" : "unchecked"} successfully');
         return updateResult;
       case Error<void>():
         _log.warning('Failed to update Todo');

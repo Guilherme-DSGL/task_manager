@@ -35,15 +35,14 @@ class CreateTodoUseCase {
     final createTodoResult = await _todoRepository.create(todoItem);
 
     switch (createTodoResult) {
-      case Ok<void>():
+      case Ok<TodoItem>():
         _log.fine("Todo created successfully");
-        break;
-      case Error<void>():
+        return Result.ok(createTodoResult.value);
+      case Error<TodoItem>():
         _log.warning("Failed to save Todo");
         return Result.error(
           Exception('Failed to save Todo'),
         );
     }
-    return Result.ok(todoItem);
   }
 }

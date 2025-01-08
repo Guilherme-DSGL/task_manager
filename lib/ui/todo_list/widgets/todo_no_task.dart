@@ -5,10 +5,10 @@ import 'package:task_manager/ui/core/ui/widgets/custom_text_buttom.dart';
 import '../../core/themes/colors.dart';
 
 class TodoNoTasks extends StatelessWidget {
-  final VoidCallback? onPressed;
+  final VoidCallback onPressed;
   const TodoNoTasks({
     super.key,
-    this.onPressed,
+    required this.onPressed,
   });
 
   @override
@@ -32,7 +32,7 @@ class TodoNoTasks extends StatelessWidget {
           SizedBox(
             height: 50,
             child: CustomTextButton(
-              onPressed: () {},
+              onPressed: onPressed,
               icon: const Icon(
                 Icons.add,
                 color: AppColors.blue,
