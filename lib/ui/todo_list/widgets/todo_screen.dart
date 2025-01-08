@@ -24,11 +24,12 @@ class TodoScreen extends StatefulWidget {
 
 class _TodoScreenState extends State<TodoScreen>
     with AutomaticKeepAliveClientMixin {
+  late ScrollController _scrollController;
   @override
   void initState() {
     super.initState();
-
-    widget._todoScreenViewModel.load.execute();
+    _scrollController = ScrollController();
+    widget._todoScreenViewModel.load.execute(0);
     widget._todoScreenViewModel.check.addListener(_listener);
   }
 
@@ -55,7 +56,8 @@ class _TodoScreenState extends State<TodoScreen>
           ListenableBuilder(
             listenable: widget._todoScreenViewModel.load,
             builder: (context, _) {
-              if (widget._todoScreenViewModel.load.running) {
+              if (widget._todoScreenViewModel.load.running &&
+                  widget._todoScreenViewModel.todoItems.isEmpty) {
                 return const Expanded(
                   child: Align(
                     alignment: Alignment.center,
@@ -66,9 +68,10 @@ class _TodoScreenState extends State<TodoScreen>
               if (widget._todoScreenViewModel.load.error) {
                 return Expanded(
                   child: CustomErrorWidget(
-                    errorMessage: "An error occurred",
-                    onRetry: widget._todoScreenViewModel.load.execute,
-                  ),
+                      errorMessage: "An error occurred",
+                      onRetry: () {
+                        widget._todoScreenViewModel.load.execute(0);
+                      }),
                 );
               }
 
@@ -86,6 +89,15 @@ class _TodoScreenState extends State<TodoScreen>
                             );
                           }
                           return TodoList(
+                            scrollController: _scrollController,
+                            loadMoreItems: () async {
+                              if (widget._todoScreenViewModel.load.running) {
+                                return;
+                              }
+                              await widget._todoScreenViewModel.load.execute(
+                                widget._todoScreenViewModel.currentOffset,
+                              );
+                            },
                             todoItems: widget._todoScreenViewModel.todoItems,
                             onCheckChanged: (id, index, value) async {
                               if (value == null) return;

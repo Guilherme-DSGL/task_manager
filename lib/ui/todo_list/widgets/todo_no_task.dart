@@ -6,9 +6,12 @@ import '../../core/themes/colors.dart';
 
 class TodoNoTasks extends StatelessWidget {
   final VoidCallback? onCreateTaksPressed;
+
+  final String title;
   const TodoNoTasks({
     super.key,
     this.onCreateTaksPressed,
+    this.title = 'You have no task listed',
   });
 
   @override
@@ -25,7 +28,7 @@ class TodoNoTasks extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "You have no task listed",
+            title,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),

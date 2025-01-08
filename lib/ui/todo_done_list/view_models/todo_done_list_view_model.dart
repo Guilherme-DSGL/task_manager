@@ -17,7 +17,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
     required DeleteTodoUseCase deleteTodoUseCase,
   })  : _todoRepository = todoRepository,
         _deleteTodoUseCase = deleteTodoUseCase {
-    load = Command0(_load);
+    load = Command1(_load);
     deleteTodo = Command1(_deleteTodo);
     _listener = EventBus.instance.on<CheckTodoEvent>().listen(
           (event) => _addCheckedTodo(event.value),
@@ -26,7 +26,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
 
   final TodoRepository _todoRepository;
   final DeleteTodoUseCase _deleteTodoUseCase;
-  late Command0<List<TodoItem>> load;
+  late Command1<List<TodoItem>, int> load;
   late Command1<void, int> deleteTodo;
 
   late final StreamSubscription _listener;
@@ -35,24 +35,41 @@ class TodoDoneListViewModel extends ChangeNotifier {
   TodoItem getTodo(int index) => checkedTodoItems[index];
   final _log = Logger("TodoDoneListViewModel");
 
-  Future<Result<List<TodoItem>>> _load() async {
+  final _limit = 15;
+
+  int get limit => _limit;
+  int get currentOffset => _checkedTodoItems.length;
+
+  Future<Result<List<TodoItem>>> _load(int offset) async {
     try {
-      return _getTodos();
+      return await _getTodos(offset: offset);
     } finally {
       notifyListeners();
     }
   }
 
-  Future<Result<List<TodoItem>>> _getTodos() async {
+  Future<Result<List<TodoItem>>> _getTodos({
+    required int offset,
+    int? limit,
+  }) async {
+    if (limit == 0) {
+      return const Result.ok([]);
+    }
     final result = await _todoRepository.getTodos(
       isCompleted: true,
+      offset: offset,
+      limit: limit ?? _limit,
     );
     switch (result) {
       case Ok<List<TodoItem>>():
-        _log.fine("load checkeds todos");
-        _checkedTodoItems
-          ..clear()
-          ..addAll(result.value);
+        _log.fine("load checkeds todos ${result.value.length}");
+        if (offset == 0) {
+          _checkedTodoItems
+            ..clear()
+            ..addAll(result.value);
+          return result;
+        }
+        _checkedTodoItems.addAll(result.value);
         return result;
       case Error<List<TodoItem>>():
         return Result.error(result.error);
@@ -72,7 +89,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
           return Result.error(result.error);
       }
 
-      return _getTodos();
+      return await _getTodos(offset: 0, limit: _checkedTodoItems.length - 1);
     } finally {
       notifyListeners();
     }

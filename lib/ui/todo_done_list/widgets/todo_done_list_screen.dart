@@ -23,10 +23,24 @@ class TodoDoneListScreen extends StatefulWidget {
 
 class _TodoDoneListScreenState extends State<TodoDoneListScreen>
     with AutomaticKeepAliveClientMixin {
+  late ScrollController _scrollController;
+
+  void _onScroll() {
+    final loadIsRunning = !widget._todoDoneListViewModel.load.running;
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent &&
+        !loadIsRunning) {
+      widget._todoDoneListViewModel.load.execute(0);
+    }
+  }
+
   @override
   void initState() {
-    widget._todoDoneListViewModel.deleteTodo.addListener(_listener);
     super.initState();
+    widget._todoDoneListViewModel.load.execute(0);
+    _scrollController = ScrollController();
+    widget._todoDoneListViewModel.deleteTodo.addListener(_listener);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -52,7 +66,8 @@ class _TodoDoneListScreenState extends State<TodoDoneListScreen>
           ListenableBuilder(
             listenable: widget._todoDoneListViewModel.load,
             builder: (context, _) {
-              if (widget._todoDoneListViewModel.load.running) {
+              if (widget._todoDoneListViewModel.load.running &&
+                  widget._todoDoneListViewModel.checkedTodoItems.isEmpty) {
                 return const Expanded(
                   child: Align(
                     alignment: Alignment.center,
@@ -64,34 +79,43 @@ class _TodoDoneListScreenState extends State<TodoDoneListScreen>
                 return Expanded(
                   child: CustomErrorWidget(
                     errorMessage: "An error occurred",
-                    onRetry: widget._todoDoneListViewModel.load.execute,
+                    onRetry: () {
+                      widget._todoDoneListViewModel.load.execute(0);
+                    },
                   ),
                 );
               }
 
-              return Expanded(
-                child: ListenableBuilder(
-                  listenable: widget._todoDoneListViewModel,
-                  builder: (context, _) {
-                    if (widget
-                        ._todoDoneListViewModel.checkedTodoItems.isEmpty) {
-                      return const TodoNoTasks();
-                    }
-                    return TodoDoneHeader(
+              return ListenableBuilder(
+                listenable: widget._todoDoneListViewModel,
+                builder: (context, _) {
+                  if (widget._todoDoneListViewModel.checkedTodoItems.isEmpty) {
+                    return const Expanded(child: TodoNoTasks());
+                  }
+                  return Expanded(
+                    child: TodoDoneHeader(
                       onDeleteAllPressed: () {},
                       children: [
-                        TodoList(
-                          onDeletePressed: (index) async {
-                            await widget._todoDoneListViewModel.deleteTodo
-                                .execute(index);
-                          },
-                          todoItems:
-                              widget._todoDoneListViewModel.checkedTodoItems,
+                        Expanded(
+                          child: TodoList(
+                            scrollController: _scrollController,
+                            onDeletePressed: (index) async {
+                              await widget._todoDoneListViewModel.deleteTodo
+                                  .execute(index);
+                            },
+                            todoItems:
+                                widget._todoDoneListViewModel.checkedTodoItems,
+                            loadMoreItems: () async {
+                              await widget._todoDoneListViewModel.load.execute(
+                                widget._todoDoneListViewModel.currentOffset,
+                              );
+                            },
+                          ),
                         ),
                       ],
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               );
             },
           ),

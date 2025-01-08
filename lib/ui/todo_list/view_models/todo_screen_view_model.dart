@@ -18,7 +18,7 @@ class TodoScreenViewModel extends ChangeNotifier {
     required CheckTodoUseCase checkUsecase,
   })  : _todoRepository = todoRepository,
         _checkUsecase = checkUsecase {
-    load = Command0(_load);
+    load = Command1(_load);
     check = Command1(_check);
     _listener = EventBus.instance
         .on<CreatedTodoEvent>()
@@ -28,7 +28,7 @@ class TodoScreenViewModel extends ChangeNotifier {
   final TodoRepository _todoRepository;
   final CheckTodoUseCase _checkUsecase;
 
-  late Command0<List<TodoItem>> load;
+  late Command1<List<TodoItem>, int> load;
   late Command1<TodoItem, ({int index, int id, bool value})> check;
 
   late final StreamSubscription _listener;
@@ -37,20 +37,34 @@ class TodoScreenViewModel extends ChangeNotifier {
   TodoItem getTodo(int index) => todoItems[index];
   final _log = Logger("TodoScreenViewModel");
 
-  Future<Result<List<TodoItem>>> _load() async {
+  final _limit = 15;
+
+  int get limit => _limit;
+  int get currentOffset => _todoItems.length;
+
+  Future<Result<List<TodoItem>>> _load(
+    int offset,
+  ) async {
     try {
       final result = await _todoRepository.getTodos(
         isCompleted: false,
+        offset: offset,
+        limit: limit,
       );
       switch (result) {
         case Ok<List<TodoItem>>():
-          _log.fine("load todos");
-          _todoItems
-            ..clear()
-            ..addAll(result.value);
+          _log.fine("load todos ${result.value.length}");
+          if (offset == 0) {
+            _todoItems
+              ..clear()
+              ..addAll(result.value);
+            return result;
+          }
+          _todoItems.addAll(result.value);
 
           return result;
         case Error<List<TodoItem>>():
+          _log.warning("failed to load todos ${result.error}");
           return Result.error(result.error);
       }
     } finally {

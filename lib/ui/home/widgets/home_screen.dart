@@ -17,6 +17,8 @@ import '../../todo_form/view_models/todo_form_view_model.dart';
 import '../../todo_form/widgets/todo_form_screen.dart';
 import '../../todo_list/view_models/todo_screen_view_model.dart';
 import '../../todo_list/widgets/todo_screen.dart';
+import '../../todo_search/view_model/todo_search_view_model.dart';
+import '../../todo_search/widgets/todo_search_screen.dart';
 import '../view_models/home_viewmodel.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -58,6 +60,12 @@ class HomeScreen extends StatefulWidget {
         deleteTodoUseCase: context.read<DeleteTodoUseCase>(),
       ),
     ),
+    ChangeNotifierProvider(
+      lazy: true,
+      create: (context) => TodoSearchViewModel(
+        todoRepository: context.read<TodoRepository>(),
+      ),
+    ),
   ];
 
   @override
@@ -74,7 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
           todoScreenViewModel: context.read<TodoScreenViewModel>(),
         ),
         const SizedBox.shrink(),
-        const Center(child: Text('Profile Screen')),
+        TodoSearchScreen(
+          todoScreenViewModel: context.read<TodoSearchViewModel>(),
+        ),
         TodoDoneListScreen(
           todoDoneListViewModel: context.read<TodoDoneListViewModel>(),
         ),

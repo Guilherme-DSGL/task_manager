@@ -1,48 +1,61 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:task_manager/data/repositories/todo_repository.dart';
 import 'package:task_manager/utils/command.dart';
 import 'package:task_manager/utils/result.dart';
 
 import '../../../domain/entities/todo_item.dart';
-import '../../../utils/event_bus/event_bus.dart';
-import '../../../utils/event_bus/events/todo/created_todo_event.dart';
 
 class TodoSearchViewModel extends ChangeNotifier {
   TodoSearchViewModel({
     required TodoRepository todoRepository,
   }) : _todoRepository = todoRepository {
-    load = Command0(_load);
-    _createTodoListener = EventBus.instance
-        .on<CreatedTodoEvent>()
-        .listen((event) => _addTodo(event.value));
+    search = Command1(_search);
   }
 
   final TodoRepository _todoRepository;
 
-  late Command0<List<TodoItem>> load;
-  late Command1<TodoItem, ({int index, int id, bool value})> check;
+  late Command1<List<TodoItem>, ({String search, int offset})> search;
 
   late final StreamSubscription _createTodoListener;
-  late final StreamSubscription _deleteTodoListener;
+
   final List<TodoItem> _todoItems = [];
   List<TodoItem> get todoItems => _todoItems;
-  TodoItem getTodo(int index) => todoItems[index];
-  final _log = Logger("TodoScreenViewModel");
 
-  Future<Result<List<TodoItem>>> _load() async {
+  final _log = Logger("TodoSearchViewModel");
+
+  final _limit = 15;
+  int get limit => _limit;
+  int get currentOffset => _todoItems.length;
+
+  Future<Result<List<TodoItem>>> _search(
+      ({String search, int offset}) params) async {
     try {
+      await Future.delayed(const Duration(seconds: 500));
+      if (params.search.length <= 3) {
+        _todoItems.clear();
+        return const Result.ok([]);
+      }
       final result = await _todoRepository.getTodos(
-        isCompleted: false,
+        search: params.search,
+        limit: limit,
+        offset: params.offset,
       );
       switch (result) {
         case Ok<List<TodoItem>>():
-          _log.fine("load todos");
-          _todoItems
-            ..clear()
-            ..addAll(result.value);
+          _log.fine("${params.search}, ${params.offset}, $limit");
+          _log.fine("load search todos ${result.value.length}");
+
+          if (params.offset == 0) {
+            _todoItems
+              ..clear()
+              ..addAll(result.value);
+            return result;
+          }
+
+          _todoItems.addAll(result.value);
 
           return result;
         case Error<List<TodoItem>>():
@@ -51,12 +64,6 @@ class TodoSearchViewModel extends ChangeNotifier {
     } finally {
       notifyListeners();
     }
-  }
-
-  void _addTodo(TodoItem todoItem) {
-    _todoItems.add(todoItem);
-    _log.fine("add todoitem to TodoScreenViewModel._todoItems");
-    notifyListeners();
   }
 
   @override
