@@ -35,6 +35,7 @@ class TodoRepositoryImpl implements TodoRepository {
   @override
   Future<Result<TodoItem>> create(TodoItem todoItem) async {
     try {
+      // Aqui deve se chamar o RemoteDataService se for sucesso, deve criar a task no localDataService
       final todoModel = await localDataService.createTodo(todoItem);
       final newTodo = TodoItem(
         id: todoModel.id,
