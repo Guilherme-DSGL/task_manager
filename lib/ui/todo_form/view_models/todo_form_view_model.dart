@@ -26,6 +26,8 @@ class TodoFormViewModel extends ChangeNotifier {
     descriptionController.removeListener(_onInputChanged);
   }
 
+  String get _classKey => runtimeType.toString();
+
   final CreateTodoUseCase _createTodoUseCase;
 
   final TextEditingController titleController = TextEditingController();
@@ -73,7 +75,12 @@ class TodoFormViewModel extends ChangeNotifier {
       switch (result) {
         case Ok<TodoItem>():
           _log.fine('Created Todo');
-          EventBus.instance.emit(CreatedTodoEvent(value: result.value));
+          EventBus.instance.emit(
+            CreatedTodoEvent(
+              value: result.value,
+              source: _classKey,
+            ),
+          );
           return Result.ok(result.value);
         case Error<TodoItem>():
           _log.warning('Failed to create Todo');
@@ -108,6 +115,13 @@ class TodoFormViewModel extends ChangeNotifier {
   String? titleValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a title';
+    }
+    if (value.length <= 3) {
+      return 'Title is too short (min 4 characters)';
+    }
+
+    if (value.length > 20) {
+      return 'Title is too long (max 20 characters)';
     }
     return null;
   }

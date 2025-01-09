@@ -11,15 +11,23 @@ class CustomInput extends StatelessWidget {
     this.prefixIcon,
     this.validator,
     this.readOnly = false,
+    this.focusNode,
+    this.textInputAction,
+    this.autoFocus = false,
+    this.onFieldSubmited,
   });
   final String hintText;
   final TextEditingController? controller;
-  final void Function(String)? onChanged;
+  final ValueChanged<String>? onChanged;
   final int? maxLines;
   final int? minLines;
   final Widget? prefixIcon;
   final FormFieldValidator<String>? validator;
   final bool readOnly;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final bool autoFocus;
+  final ValueChanged<String>? onFieldSubmited;
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +46,13 @@ class CustomInput extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: TextFormField(
+            autofocus: autoFocus,
             readOnly: readOnly,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             controller: controller,
+            focusNode: focusNode,
+            textInputAction: textInputAction,
+            onFieldSubmitted: onFieldSubmited,
             decoration: InputDecoration(
               hintText: hintText,
             ),

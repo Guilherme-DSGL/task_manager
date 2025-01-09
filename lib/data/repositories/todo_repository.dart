@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:task_manager/data/models/todo_item_model.dart';
 import 'package:task_manager/domain/entities/todo_item.dart';
 
 import '../../../utils/result.dart';
@@ -28,6 +29,8 @@ class TodoRepositoryImpl implements TodoRepository {
     this.localDataService,
   );
   final LocalDataService localDataService;
+
+  static const hasInternet = false; // mock internet connection
 
   @override
   Future<Result<TodoItem>> create(TodoItem todoItem) async {
@@ -99,12 +102,17 @@ class TodoRepositoryImpl implements TodoRepository {
     int? offset,
   }) async {
     try {
-      final models = await localDataService.getTodos(
-        isCompleted: isCompleted,
-        search: search,
-        limit: limit,
-        offset: offset,
-      );
+      List<TodoItemModel> models;
+      if (hasInternet) {
+        models = [];
+      } else {
+        models = await localDataService.getTodos(
+          isCompleted: isCompleted,
+          search: search,
+          limit: limit,
+          offset: offset,
+        );
+      }
 
       final entities = models
           .map(

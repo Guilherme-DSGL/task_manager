@@ -131,10 +131,6 @@ class _TodoScreenState extends State<TodoScreen>
   }
 
   _listener() {
-    if (widget._todoScreenViewModel.check.completed) {
-      widget._todoScreenViewModel.check.clearResult();
-      AsukaSnackbar.success("You done the task").show();
-    }
     if (widget._todoScreenViewModel.check.error) {
       widget._todoScreenViewModel.check.clearResult();
       AsukaSnackbar.warning("An error occurred while checking task").show();

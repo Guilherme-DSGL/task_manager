@@ -35,3 +35,7 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
+
+// fazer o check funcionar nas telas de search e todo e uncheck tbm 
+// enviar os eventos e retirar da lista de done

@@ -46,6 +46,7 @@ class _TodoDoneListScreenState extends State<TodoDoneListScreen>
   @override
   void dispose() {
     widget._todoDoneListViewModel.deleteTodo.removeListener(_listener);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -90,14 +91,27 @@ class _TodoDoneListScreenState extends State<TodoDoneListScreen>
                 listenable: widget._todoDoneListViewModel,
                 builder: (context, _) {
                   if (widget._todoDoneListViewModel.checkedTodoItems.isEmpty) {
-                    return const Expanded(child: TodoNoTasks());
+                    return Expanded(
+                      child: _TodoDoneHeader(
+                        todoDoneListViewModel: widget._todoDoneListViewModel,
+                        children: const [
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: TodoNoTasks(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   }
                   return Expanded(
-                    child: TodoDoneHeader(
-                      onDeleteAllPressed: () {},
+                    child: _TodoDoneHeader(
+                      todoDoneListViewModel: widget._todoDoneListViewModel,
                       children: [
                         Expanded(
                           child: TodoList(
+                            showDeleteButton: true,
                             scrollController: _scrollController,
                             onDeletePressed: (index) async {
                               await widget._todoDoneListViewModel.deleteTodo
@@ -132,14 +146,15 @@ class _TodoDoneListScreenState extends State<TodoDoneListScreen>
   }
 }
 
-class TodoDoneHeader extends StatelessWidget {
-  const TodoDoneHeader({
-    super.key,
+class _TodoDoneHeader extends StatelessWidget {
+  const _TodoDoneHeader({
     required this.children,
-    required this.onDeleteAllPressed,
+    this.showDeleteButton = true,
+    required this.todoDoneListViewModel,
   });
   final List<Widget> children;
-  final VoidCallback onDeleteAllPressed;
+  final bool showDeleteButton;
+  final TodoDoneListViewModel todoDoneListViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -155,16 +170,25 @@ class TodoDoneHeader extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
             ),
-            CustomTextButton(
-              label: const Text(
-                'Delete All',
-                style: TextStyle(
-                  color: AppColors.fireRed,
-                ),
+            if (showDeleteButton)
+              ListenableBuilder(
+                listenable: todoDoneListViewModel.deleteAllTodos,
+                builder: (context, child) {
+                  return CustomTextButton(
+                    isLoading: todoDoneListViewModel.deleteAllTodos.running,
+                    label: const Text(
+                      'Delete All',
+                      style: TextStyle(
+                        color: AppColors.fireRed,
+                      ),
+                    ),
+                    backgroundColor: Colors.transparent,
+                    onPressed: () async {
+                      await todoDoneListViewModel.deleteAllTodos.execute();
+                    },
+                  );
+                },
               ),
-              backgroundColor: Colors.transparent,
-              onPressed: onDeleteAllPressed,
-            ),
           ],
         ),
         const SizedBox(height: 32),

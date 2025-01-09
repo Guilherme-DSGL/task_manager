@@ -2,9 +2,10 @@ import 'dart:async';
 
 class Event<T> {
   final T value;
-
+  final String source;
   Event({
     required this.value,
+    required this.source,
   });
 }
 
@@ -26,11 +27,13 @@ class EventBus {
 
   StreamController get streamController => _streamController;
 
-  Stream<T> on<T extends Event>() {
+  Stream<T> on<T extends Event>({required String source}) {
     if (T == dynamic) {
       return streamController.stream as Stream<T>;
     } else {
-      return streamController.stream.where((event) => event is T).cast<T>();
+      return streamController.stream
+          .where((event) => event is T && event.source != source)
+          .cast<T>();
     }
   }
 

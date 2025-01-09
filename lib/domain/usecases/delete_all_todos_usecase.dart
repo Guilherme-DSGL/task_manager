@@ -3,8 +3,8 @@ import 'package:logging/logging.dart';
 import '../../data/repositories/todo_repository.dart';
 import '../../utils/result.dart';
 
-class DeleteAllTodoUseCase {
-  DeleteAllTodoUseCase({
+class DeleteAllTodosUseCase {
+  DeleteAllTodosUseCase({
     required TodoRepository todoRepository,
   }) : _todoRepository = todoRepository;
 

@@ -11,6 +11,7 @@ class TodoList extends StatefulWidget {
     this.onCheckChanged,
     this.onDeletePressed,
     required this.scrollController,
+    this.showDeleteButton = false,
   });
 
   final Future<void> Function(
@@ -22,6 +23,7 @@ class TodoList extends StatefulWidget {
   final List<TodoItem> todoItems;
   final Future<void> Function() loadMoreItems;
   final ScrollController scrollController;
+  final bool showDeleteButton;
 
   @override
   _TodoListState createState() => _TodoListState();
@@ -35,10 +37,16 @@ class _TodoListState extends State<TodoList> {
     widget.scrollController.addListener(_onScroll);
   }
 
+  @override
+  void dispose() {
+    widget.scrollController.removeListener(_onScroll);
+    super.dispose();
+  }
+
   void _onScroll() async {
-    if (widget.scrollController.position.pixels >=
-            widget.scrollController.position.maxScrollExtent &&
-        !isLoading) {
+    final isAtBottom = widget.scrollController.position.pixels ==
+        widget.scrollController.position.maxScrollExtent;
+    if (isAtBottom && !isLoading) {
       setState(() {
         isLoading = true;
       });
@@ -64,7 +72,7 @@ class _TodoListState extends State<TodoList> {
               title: todo.title,
               description: todo.description,
               isCompleted: todo.isCompleted,
-              isDeleteButtonVisible: todo.isCompleted,
+              isDeleteButtonVisible: widget.showDeleteButton,
               onDeletePressed: () async {
                 await widget.onDeletePressed?.call(todo.id!);
               },
@@ -79,13 +87,13 @@ class _TodoListState extends State<TodoList> {
           },
         )),
         SliverToBoxAdapter(
-          child: Visibility(
+          child: Visibility.maintain(
             visible: isLoading,
             child: const Align(
               alignment: Alignment.center,
               child: SizedBox(
-                height: 32,
-                width: 32,
+                height: 24,
+                width: 24,
                 child: CircularProgressIndicator.adaptive(),
               ),
             ),
@@ -93,7 +101,7 @@ class _TodoListState extends State<TodoList> {
         ),
         const SliverToBoxAdapter(
           child: SizedBox(
-            height: 10,
+            height: 5,
           ),
         )
       ],

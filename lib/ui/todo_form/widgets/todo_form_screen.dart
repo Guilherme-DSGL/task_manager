@@ -36,88 +36,100 @@ class _TodoFormScreenState extends State<TodoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 300,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.paddingHorizontal,
-          vertical: AppSizes.paddingVertical,
-        ),
-        child: Form(
-            key: widget._createTodoViewModel.formKey,
-            child: Column(
-              children: [
-                ListenableBuilder(
-                  listenable: Listenable.merge([
-                    widget._createTodoViewModel.isValid,
-                    widget._createTodoViewModel.handleSubmit,
-                  ]),
-                  builder: (context, _) {
-                    return CustomInput(
-                      readOnly: widget._createTodoViewModel.isDisableFields,
-                      controller: widget._createTodoViewModel.titleController,
-                      validator: widget._createTodoViewModel.titleValidator,
-                      prefixIcon: Transform.scale(
-                        scale: 1.3,
-                        child: const Checkbox(
-                          value: false,
-                          onChanged: null,
+    return SingleChildScrollView(
+      reverse: true,
+      child: SizedBox(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.paddingHorizontal,
+            vertical: AppSizes.paddingVertical,
+          ),
+          child: Form(
+              key: widget._createTodoViewModel.formKey,
+              child: Column(
+                children: [
+                  ListenableBuilder(
+                    listenable: Listenable.merge([
+                      widget._createTodoViewModel.isValid,
+                      widget._createTodoViewModel.handleSubmit,
+                    ]),
+                    builder: (context, _) {
+                      return CustomInput(
+                        autoFocus: true,
+                        textInputAction: TextInputAction.next,
+                        readOnly: widget._createTodoViewModel.isDisableFields,
+                        controller: widget._createTodoViewModel.titleController,
+                        validator: widget._createTodoViewModel.titleValidator,
+                        prefixIcon: Transform.scale(
+                          scale: 1.3,
+                          child: const Checkbox(
+                            value: false,
+                            onChanged: null,
+                          ),
                         ),
-                      ),
-                      hintText: 'What\'s in your mind',
-                    );
-                  },
-                ),
-                const SizedBox(height: 20),
-                ListenableBuilder(
-                  listenable: Listenable.merge([
-                    widget._createTodoViewModel.isValid,
-                    widget._createTodoViewModel.handleSubmit,
-                  ]),
-                  builder: (context, _) {
-                    return CustomInput(
-                      readOnly: widget._createTodoViewModel.isDisableFields,
-                      controller:
-                          widget._createTodoViewModel.descriptionController,
-                      validator:
-                          widget._createTodoViewModel.descriptionValidator,
-                      prefixIcon: const Icon(
-                        Icons.edit,
-                        color: AppColors.mutedAzure,
-                      ),
-                      minLines: 1,
-                      maxLines: 4,
-                      hintText: 'Add a note',
-                    );
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ListenableBuilder(
-                      listenable: Listenable.merge([
-                        widget._createTodoViewModel.isValid,
-                        widget._createTodoViewModel.handleSubmit,
-                      ]),
-                      builder: (context, _) {
-                        return CustomTextButton(
-                          isDisable: !widget._createTodoViewModel.isValid.value,
-                          isLoading:
-                              widget._createTodoViewModel.handleSubmit.running,
-                          onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
+                        hintText: 'What\'s in your mind',
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  ListenableBuilder(
+                    listenable: Listenable.merge([
+                      widget._createTodoViewModel.isValid,
+                      widget._createTodoViewModel.handleSubmit,
+                    ]),
+                    builder: (context, _) {
+                      return CustomInput(
+                        textInputAction: TextInputAction.send,
+                        onFieldSubmited: (value) {
+                          if (widget._createTodoViewModel.isValid.value) {
                             widget._createTodoViewModel.handleSubmit
                                 .execute(null);
-                          },
-                          backgroundColor: Colors.transparent,
-                          label: const Text("Create"),
-                        );
-                      },
-                    ),
-                  ],
-                )
-              ],
-            )),
+                          }
+                        },
+                        readOnly: widget._createTodoViewModel.isDisableFields,
+                        controller:
+                            widget._createTodoViewModel.descriptionController,
+                        validator:
+                            widget._createTodoViewModel.descriptionValidator,
+                        prefixIcon: const Icon(
+                          Icons.edit,
+                          color: AppColors.mutedAzure,
+                        ),
+                        minLines: 1,
+                        maxLines: 4,
+                        hintText: 'Add a note',
+                      );
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ListenableBuilder(
+                        listenable: Listenable.merge([
+                          widget._createTodoViewModel.isValid,
+                          widget._createTodoViewModel.handleSubmit,
+                        ]),
+                        builder: (context, _) {
+                          return CustomTextButton(
+                            isDisable:
+                                !widget._createTodoViewModel.isValid.value,
+                            isLoading: widget
+                                ._createTodoViewModel.handleSubmit.running,
+                            onPressed: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              widget._createTodoViewModel.handleSubmit
+                                  .execute(null);
+                            },
+                            backgroundColor: Colors.transparent,
+                            label: const Text("Create"),
+                          );
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              )),
+        ),
       ),
     );
   }

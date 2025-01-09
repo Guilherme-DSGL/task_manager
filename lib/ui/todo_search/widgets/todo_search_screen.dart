@@ -1,3 +1,4 @@
+import 'package:asuka/asuka.dart';
 import 'package:flutter/material.dart';
 import 'package:task_manager/ui/core/ui/widgets/error_widget.dart';
 
@@ -10,9 +11,9 @@ import 'custom_search_field.dart';
 class TodoSearchScreen extends StatefulWidget {
   const TodoSearchScreen({
     super.key,
-    required TodoSearchViewModel todoScreenViewModel,
-  }) : _todoScreenViewModel = todoScreenViewModel;
-  final TodoSearchViewModel _todoScreenViewModel;
+    required TodoSearchViewModel todoSearchScreenViewModel,
+  }) : _todoSearchScreenViewModel = todoSearchScreenViewModel;
+  final TodoSearchViewModel _todoSearchScreenViewModel;
   @override
   State<TodoSearchScreen> createState() => _TodoScreenState();
 }
@@ -20,16 +21,19 @@ class TodoSearchScreen extends StatefulWidget {
 class _TodoScreenState extends State<TodoSearchScreen>
     with AutomaticKeepAliveClientMixin {
   late ScrollController _scrollController;
-  late TextEditingController _textEditingController;
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _textEditingController = TextEditingController();
+
+    widget._todoSearchScreenViewModel.check.addListener(_listener);
   }
 
   @override
   void dispose() {
+    widget._todoSearchScreenViewModel.check.removeListener(_listener);
+    _scrollController.dispose();
+    widget._todoSearchScreenViewModel.textEditingController.dispose();
     super.dispose();
   }
 
@@ -48,13 +52,14 @@ class _TodoScreenState extends State<TodoSearchScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListenableBuilder(
-              listenable: widget._todoScreenViewModel.search,
+              listenable: widget._todoSearchScreenViewModel.search,
               builder: (context, child) {
                 return CustomSearchField(
-                  enabled: !widget._todoScreenViewModel.search.running,
-                  controller: _textEditingController,
+                  enabled: !widget._todoSearchScreenViewModel.search.running,
+                  controller:
+                      widget._todoSearchScreenViewModel.textEditingController,
                   onSearch: (value) {
-                    widget._todoScreenViewModel.search.execute((
+                    widget._todoSearchScreenViewModel.search.execute((
                       offset: 0,
                       search: value,
                     ));
@@ -63,10 +68,10 @@ class _TodoScreenState extends State<TodoSearchScreen>
               }),
           const SizedBox(height: 32),
           ListenableBuilder(
-            listenable: widget._todoScreenViewModel.search,
+            listenable: widget._todoSearchScreenViewModel.search,
             builder: (context, _) {
-              if (widget._todoScreenViewModel.search.running &&
-                  widget._todoScreenViewModel.todoItems.isEmpty) {
+              if (widget._todoSearchScreenViewModel.search.running &&
+                  widget._todoSearchScreenViewModel.todoItems.isEmpty) {
                 return const Expanded(
                   child: Align(
                     alignment: Alignment.center,
@@ -74,14 +79,15 @@ class _TodoScreenState extends State<TodoSearchScreen>
                   ),
                 );
               }
-              if (widget._todoScreenViewModel.search.error) {
+              if (widget._todoSearchScreenViewModel.search.error) {
                 return Expanded(
                   child: CustomErrorWidget(
                       errorMessage: "An error occurred",
                       onRetry: () {
-                        widget._todoScreenViewModel.search.execute((
+                        widget._todoSearchScreenViewModel.search.execute((
                           offset: 0,
-                          search: _textEditingController.value.text,
+                          search: widget._todoSearchScreenViewModel
+                              .textEditingController.value.text,
                         ));
                       }),
                 );
@@ -89,11 +95,13 @@ class _TodoScreenState extends State<TodoSearchScreen>
 
               return Expanded(
                 child: ListenableBuilder(
-                  listenable: widget._todoScreenViewModel,
+                  listenable: widget._todoSearchScreenViewModel,
                   builder: (context, _) {
-                    if (widget._todoScreenViewModel.todoItems.isEmpty) {
+                    if (widget._todoSearchScreenViewModel.todoItems.isEmpty) {
                       return TodoNoTasks(
-                        title: _textEditingController.value.text.length <= 3
+                        title: widget._todoSearchScreenViewModel
+                                    .textEditingController.value.text.length <=
+                                3
                             ? 'Type to search'
                             : 'No results found',
                       );
@@ -101,17 +109,27 @@ class _TodoScreenState extends State<TodoSearchScreen>
                     return TodoList(
                       scrollController: _scrollController,
                       loadMoreItems: () async {
-                        if (widget._todoScreenViewModel.search.running) {
+                        if (widget._todoSearchScreenViewModel.search.running) {
                           return;
                         }
-                        await widget._todoScreenViewModel.search.execute(
+                        await widget._todoSearchScreenViewModel.search.execute(
                           (
-                            offset: widget._todoScreenViewModel.currentOffset,
-                            search: _textEditingController.value.text,
+                            offset:
+                                widget._todoSearchScreenViewModel.currentOffset,
+                            search: widget._todoSearchScreenViewModel
+                                .textEditingController.value.text,
                           ),
                         );
                       },
-                      todoItems: widget._todoScreenViewModel.todoItems,
+                      onCheckChanged: (id, index, value) async {
+                        if (value == null) return;
+                        await widget._todoSearchScreenViewModel.check.execute((
+                          id: id!,
+                          index: index,
+                          value: value,
+                        ));
+                      },
+                      todoItems: widget._todoSearchScreenViewModel.todoItems,
                     );
                   },
                 ),
@@ -121,5 +139,12 @@ class _TodoScreenState extends State<TodoSearchScreen>
         ],
       ),
     );
+  }
+
+  _listener() {
+    if (widget._todoSearchScreenViewModel.check.error) {
+      widget._todoSearchScreenViewModel.check.clearResult();
+      AsukaSnackbar.warning("An error occurred while checking task").show();
+    }
   }
 }

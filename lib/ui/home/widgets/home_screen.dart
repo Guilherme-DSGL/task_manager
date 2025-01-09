@@ -5,6 +5,7 @@ import 'package:provider/single_child_widget.dart';
 import 'package:task_manager/config/assets.dart';
 import 'package:task_manager/data/repositories/todo_repository.dart';
 import 'package:task_manager/domain/usecases/check_todo_usecase.dart';
+import 'package:task_manager/domain/usecases/delete_all_todos_usecase.dart';
 import 'package:task_manager/ui/core/ui/widgets/custom_modal_bottom_sheet.dart';
 
 import '../../../domain/usecases/create_todo_usecase.dart';
@@ -57,6 +58,7 @@ class HomeScreen extends StatefulWidget {
       lazy: true,
       create: (context) => TodoDoneListViewModel(
         todoRepository: context.read<TodoRepository>(),
+        deleteAllTodoUsecase: context.read<DeleteAllTodosUseCase>(),
         deleteTodoUseCase: context.read<DeleteTodoUseCase>(),
       ),
     ),
@@ -64,6 +66,7 @@ class HomeScreen extends StatefulWidget {
       lazy: true,
       create: (context) => TodoSearchViewModel(
         todoRepository: context.read<TodoRepository>(),
+        checkTodoUsecase: context.read<CheckTodoUseCase>(),
       ),
     ),
   ];
@@ -83,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox.shrink(),
         TodoSearchScreen(
-          todoScreenViewModel: context.read<TodoSearchViewModel>(),
+          todoSearchScreenViewModel: context.read<TodoSearchViewModel>(),
         ),
         TodoDoneListScreen(
           todoDoneListViewModel: context.read<TodoDoneListViewModel>(),
