@@ -2,8 +2,9 @@
 
 
 # Task Manager
+
 <div align="left">
-  <img width="150" height="150" src="https://github.com/user-attachments/assets/88758a5b-abc8-4499-aeeb-3955a9b80a9b" alt="Task Manager" height="150px">
+  <img width="300" height="600" src="https://github.com/user-attachments/assets/939718a8-be9d-4bb5-b452-f3285dd854fc" alt="Task Manager" height="150px">
 </div>
 
 
