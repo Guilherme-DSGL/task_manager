@@ -25,8 +25,22 @@ class LocalDatabaseService {
         await db.execute(
           'CREATE TABLE todos(id INTEGER PRIMARY KEY, title TEXT, description TEXT, isCompleted INTEGER)',
         );
+        _createSampleData(db);
       },
     );
+  }
+
+  void _createSampleData(Database db) async {
+    for (int i = 1; i <= 50; i++) {
+      await db.insert(
+        'todos',
+        {
+          'title': 'task #$i',
+          'description': 'Description for task #$i',
+          'isCompleted': 0,
+        },
+      );
+    }
   }
 
   Future<int> insert(
