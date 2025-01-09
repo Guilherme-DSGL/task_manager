@@ -33,7 +33,7 @@ class _CustomSearchFieldState extends State<CustomSearchField> {
 
   void _onTextChanged(String text) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    _debounce = Timer(const Duration(milliseconds: 1700), () {
       widget.onSearch(text);
     });
   }
