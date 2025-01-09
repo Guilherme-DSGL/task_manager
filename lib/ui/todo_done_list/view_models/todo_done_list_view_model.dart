@@ -34,7 +34,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
   final DeleteTodoUseCase _deleteTodoUseCase;
   final DeleteAllTodosUseCase _deleteAllTodoUsecase;
 
-  late Command1<List<TodoItem>, int> load;
+  late Command1<CountListTodoItem, int> load;
   late Command1<void, int> deleteTodo;
   late Command0<void> deleteAllTodos;
 
@@ -49,7 +49,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
   int get limit => _limit;
   int get currentOffset => _checkedTodoItems.length;
 
-  Future<Result<List<TodoItem>>> _load(int offset) async {
+  Future<Result<CountListTodoItem>> _load(int offset) async {
     try {
       return await _getTodos(offset: offset);
     } finally {
@@ -57,7 +57,7 @@ class TodoDoneListViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<List<TodoItem>>> _getTodos({
+  Future<Result<CountListTodoItem>> _getTodos({
     required int offset,
     int? limit,
   }) async {
@@ -67,21 +67,22 @@ class TodoDoneListViewModel extends ChangeNotifier {
       limit: limit ?? _limit,
     );
     switch (result) {
-      case Ok<List<TodoItem>>():
-        _log.fine("load checkeds todos ${result.value.length}");
+      case Ok<CountListTodoItem>():
+        _log.fine(
+            "load checkeds todos ${result.value.todosItems.length} in ${result.value.count}");
         if (offset == 0) {
           _checkedTodoItems
             ..clear()
-            ..addAll(result.value);
+            ..addAll(result.value.todosItems);
           return result;
         }
         final items = <TodoItem>{
           ..._checkedTodoItems,
-          ...result.value,
+          ...result.value.todosItems,
         }.toList();
         _checkedTodoItems = items;
         return result;
-      case Error<List<TodoItem>>():
+      case Error<CountListTodoItem>():
         return Result.error(result.error);
     }
   }

@@ -77,7 +77,7 @@ class _TodoScreenState extends State<TodoScreen>
 
               return Expanded(
                 child: TodoHeader(
-                  todosCount: widget._todoScreenViewModel.todoItems.length,
+                  todosCount: widget._todoScreenViewModel.count,
                   children: [
                     Expanded(
                       child: ListenableBuilder(

@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 import 'package:task_manager/config/assets.dart';
-import 'package:task_manager/data/repositories/todo_repository.dart';
-import 'package:task_manager/domain/usecases/check_todo_usecase.dart';
-import 'package:task_manager/domain/usecases/delete_all_todos_usecase.dart';
 import 'package:task_manager/ui/core/ui/widgets/custom_modal_bottom_sheet.dart';
 
-import '../../../domain/usecases/create_todo_usecase.dart';
-import '../../../domain/usecases/delete_todo_usecase.dart';
 import '../../core/ui/widgets/custom_app_bar.dart';
 import '../../core/ui/widgets/navigation_bottom_icon.dart';
 import '../../todo_done_list/view_models/todo_done_list_view_model.dart';
@@ -29,47 +23,6 @@ class HomeScreen extends StatefulWidget {
   }) : _homeViewModel = homeViewModel;
 
   final HomeViewModel _homeViewModel;
-
-  static final List<SingleChildWidget> providers = [
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => HomeViewModel(),
-    ),
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => TodoFormViewModel(
-        createTodoUseCase: context.read<CreateTodoUseCase>(),
-      ),
-    ),
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => TodoScreenViewModel(
-        todoRepository: context.read<TodoRepository>(),
-        checkUsecase: context.read<CheckTodoUseCase>(),
-      ),
-    ),
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => TodoFormViewModel(
-        createTodoUseCase: context.read<CreateTodoUseCase>(),
-      ),
-    ),
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => TodoDoneListViewModel(
-        todoRepository: context.read<TodoRepository>(),
-        deleteAllTodoUsecase: context.read<DeleteAllTodosUseCase>(),
-        deleteTodoUseCase: context.read<DeleteTodoUseCase>(),
-      ),
-    ),
-    ChangeNotifierProvider(
-      lazy: true,
-      create: (context) => TodoSearchViewModel(
-        todoRepository: context.read<TodoRepository>(),
-        checkTodoUsecase: context.read<CheckTodoUseCase>(),
-      ),
-    ),
-  ];
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

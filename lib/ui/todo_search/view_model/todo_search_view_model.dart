@@ -34,7 +34,7 @@ class TodoSearchViewModel extends ChangeNotifier {
   final TodoRepository _todoRepository;
   final CheckTodoUseCase _checkTodoUsecase;
 
-  late Command1<List<TodoItem>, ({String search, int offset})> search;
+  late Command1<CountListTodoItem, ({String search, int offset})> search;
   late Command1<TodoItem, ({int index, int id, bool value})> check;
 
   late final StreamSubscription _checkListener;
@@ -51,12 +51,12 @@ class TodoSearchViewModel extends ChangeNotifier {
   int get limit => _limit;
   int get currentOffset => _todoItems.length;
 
-  Future<Result<List<TodoItem>>> _search(
+  Future<Result<CountListTodoItem>> _search(
       ({String search, int offset}) params) async {
     try {
       if (params.search.length <= 3) {
         _todoItems.clear();
-        return const Result.ok([]);
+        return const Result.ok((count: 0, todosItems: []));
       }
 
       return _getTodos((
@@ -69,7 +69,7 @@ class TodoSearchViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<List<TodoItem>>> _getTodos(
+  Future<Result<CountListTodoItem>> _getTodos(
       ({
         String search,
         int offset,
@@ -81,24 +81,25 @@ class TodoSearchViewModel extends ChangeNotifier {
       offset: params.offset,
     );
     switch (result) {
-      case Ok<List<TodoItem>>():
+      case Ok<CountListTodoItem>():
         _log.fine("${params.search}, ${params.offset}, $limit");
-        _log.fine("load search todos ${result.value.length}");
+        _log.fine(
+            "load ${result.value.todosItems.length} search todos in total ${result.value.count}");
 
         if (params.offset == 0) {
           _todoItems
             ..clear()
-            ..addAll(result.value);
+            ..addAll(result.value.todosItems);
           return result;
         }
         final items = <TodoItem>{
           ..._todoItems,
-          ...result.value,
+          ...result.value.todosItems,
         }.toList();
         _todoItems = items;
 
         return result;
-      case Error<List<TodoItem>>():
+      case Error<CountListTodoItem>():
         return Result.error(result.error);
     }
   }

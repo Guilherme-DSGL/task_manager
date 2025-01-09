@@ -38,7 +38,7 @@ class TodoScreenViewModel extends ChangeNotifier {
   final CheckTodoUseCase _checkUsecase;
 
   //Actions
-  late Command1<List<TodoItem>, int> load;
+  late Command1<CountListTodoItem, int> load;
   late Command1<TodoItem, ({int index, int id, bool value})> check;
 
   //Listerners
@@ -49,6 +49,7 @@ class TodoScreenViewModel extends ChangeNotifier {
   List<TodoItem> _todoItems = [];
   List<TodoItem> get todoItems => _todoItems;
   TodoItem getTodo(int index) => todoItems[index];
+  int count = 0;
 
   final _log = Logger("TodoScreenViewModel");
 
@@ -56,7 +57,7 @@ class TodoScreenViewModel extends ChangeNotifier {
   int get limit => _limit;
   int get currentOffset => _todoItems.length;
 
-  Future<Result<List<TodoItem>>> _load(
+  Future<Result<CountListTodoItem>> _load(
     int offset,
   ) async {
     try {
@@ -66,28 +67,30 @@ class TodoScreenViewModel extends ChangeNotifier {
     }
   }
 
-  Future<Result<List<TodoItem>>> _getTodos(int offset, int limit) async {
+  Future<Result<CountListTodoItem>> _getTodos(int offset, int limit) async {
     final result = await _todoRepository.getTodos(
       offset: offset,
       limit: limit,
     );
     switch (result) {
-      case Ok<List<TodoItem>>():
-        _log.fine("load todos ${result.value.length}");
+      case Ok<CountListTodoItem>():
+        _log.fine(
+            "load todos ${result.value.todosItems.length} in ${result.value.count}");
+        count = result.value.count;
         if (offset == 0) {
           _todoItems
             ..clear()
-            ..addAll(result.value);
+            ..addAll(result.value.todosItems);
           return result;
         }
         final items = <TodoItem>{
           ..._todoItems,
-          ...result.value,
+          ...result.value.todosItems,
         }.toList();
         _todoItems = items;
 
         return result;
-      case Error<List<TodoItem>>():
+      case Error<CountListTodoItem>():
         _log.warning("failed to load todos ${result.error}");
         return Result.error(result.error);
     }

@@ -67,7 +67,10 @@ class LocalDatabaseService {
   }
 
   Future<int> delete(
-      String table, String where, List<Object?> whereArgs) async {
+    String table,
+    String where,
+    List<Object?> whereArgs,
+  ) async {
     final db = await database;
     return await db.delete(
       table,
@@ -91,5 +94,24 @@ class LocalDatabaseService {
       limit: limit,
       offset: offset,
     );
+  }
+
+  Future<int> count(
+    String table, {
+    String? where,
+    List<Object?>? whereArgs,
+  }) async {
+    final db = await database;
+    String? whereString;
+    if (where != null) {
+      whereString = 'WHERE $where';
+    }
+    final result = await db.rawQuery(
+      "SELECT COUNT(*) FROM $table  ${whereString ?? ''}",
+      whereArgs,
+    );
+
+    print(result);
+    return Sqflite.firstIntValue(result) ?? 0;
   }
 }

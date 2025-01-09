@@ -81,7 +81,7 @@ class LocalDataService {
     }
   }
 
-  Future<List<TodoItemModel>> getTodos({
+  Future<({int count, List<TodoItemModel> todosItems})> getTodos({
     bool? isCompleted,
     String? search,
     int? limit,
@@ -101,6 +101,14 @@ class LocalDataService {
         whereArgs.addAll(['%$search%', '%$search%']);
       }
 
+      final count = await localDatabase.count(
+        'todos',
+        where: whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null,
+        whereArgs: whereArgs,
+      );
+
+      print("A quantidade foi $count");
+
       final result = await localDatabase.query(
         'todos',
         where: whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null,
@@ -109,7 +117,10 @@ class LocalDataService {
         offset: offset,
       );
 
-      return result.map((json) => TodoItemModel.fromJson(json)).toList();
+      return (
+        count: count,
+        todosItems: result.map((json) => TodoItemModel.fromJson(json)).toList()
+      );
     } catch (e) {
       throw Exception('Failed to fetch Todos: $e');
     }

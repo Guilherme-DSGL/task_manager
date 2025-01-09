@@ -6,6 +6,8 @@ import 'package:task_manager/domain/entities/todo_item.dart';
 import '../../../utils/result.dart';
 import '../services/local_data_service.dart';
 
+typedef CountListTodoItem = ({int count, List<TodoItem> todosItems});
+
 abstract class TodoRepository {
   Future<Result<TodoItem>> create(TodoItem todoItem);
   Future<Result<TodoItem>> update({
@@ -16,7 +18,7 @@ abstract class TodoRepository {
   });
   Future<Result<void>> delete(int id);
   Future<Result<void>> deleteAll(List<int> ids);
-  Future<Result<List<TodoItem>>> getTodos({
+  Future<Result<CountListTodoItem>> getTodos({
     bool? isCompleted,
     String? search,
     int? limit,
@@ -96,18 +98,18 @@ class TodoRepositoryImpl implements TodoRepository {
   }
 
   @override
-  Future<Result<List<TodoItem>>> getTodos({
+  Future<Result<CountListTodoItem>> getTodos({
     bool? isCompleted,
     String? search,
     int? limit,
     int? offset,
   }) async {
     try {
-      List<TodoItemModel> models;
+      ({int count, List<TodoItemModel> todosItems}) result;
       if (hasInternet) {
-        models = [];
+        result = (count: 0, todosItems: []);
       } else {
-        models = await localDataService.getTodos(
+        result = await localDataService.getTodos(
           isCompleted: isCompleted,
           search: search,
           limit: limit,
@@ -115,7 +117,7 @@ class TodoRepositoryImpl implements TodoRepository {
         );
       }
 
-      final entities = models
+      final entities = result.todosItems
           .map(
             (model) => TodoItem(
               id: model.id,
@@ -125,7 +127,7 @@ class TodoRepositoryImpl implements TodoRepository {
             ),
           )
           .toList();
-      return Result.ok(entities);
+      return Result.ok((count: result.count, todosItems: entities));
     } catch (e) {
       return Result.error(Exception(e));
     }

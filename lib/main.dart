@@ -24,6 +24,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       builder: Asuka.builder,
       localizationsDelegates: const [
         GlobalWidgetsLocalizations.delegate,
@@ -35,7 +36,3 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-
-
-// fazer o check funcionar nas telas de search e todo e uncheck tbm 
-// enviar os eventos e retirar da lista de done
